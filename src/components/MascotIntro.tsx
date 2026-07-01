@@ -33,6 +33,50 @@ const WHY_LINES = [
   "Alright. Let's move.",
 ];
 
+// Mascot animation state per line — what the character is doing
+type MascotAnim = "idle" | "lookup" | "standup" | "talk" | "nod";
+
+const MAIN_ANIMS: MascotAnim[] = ["talk", "lookup", "talk", "standup", "talk"];
+const WHY_ANIMS:  MascotAnim[] = ["talk", "talk", "nod"];
+
+/* ─── TTS helper ──────────────────────────────────────────────────────────── */
+
+let ttsVoice: SpeechSynthesisVoice | null = null;
+
+function loadVoice() {
+  if (!("speechSynthesis" in window)) return;
+  const pick = () => {
+    const voices = window.speechSynthesis.getVoices();
+    ttsVoice =
+      voices.find((v) =>
+        v.lang.startsWith("en") &&
+        (v.name.includes("Daniel") || v.name.includes("Arthur") ||
+         v.name.includes("Google UK") || v.name.includes("Alex") ||
+         v.name.includes("Fred"))
+      ) ?? voices.find((v) => v.lang.startsWith("en")) ?? null;
+  };
+  pick();
+  window.speechSynthesis.addEventListener("voiceschanged", pick);
+}
+
+function speakLine(text: string) {
+  if (!("speechSynthesis" in window)) return;
+  // Strip action beats from spoken text
+  const spoken = text.replace(/\(.*?\)/g, "").trim();
+  if (!spoken) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(spoken);
+  if (ttsVoice) u.voice = ttsVoice;
+  u.rate  = 0.88;
+  u.pitch = 0.9;
+  u.volume = 1;
+  window.speechSynthesis.speak(u);
+}
+
+function stopTTS() {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+}
+
 /* ─── Types ───────────────────────────────────────────────────────────────── */
 
 type FlowState =
@@ -51,7 +95,11 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [entered, setEntered]         = useState(false);
   const [mascotIn, setMascotIn]       = useState(false);
+  const [mascotAnim, setMascotAnim]   = useState<MascotAnim>("idle");
   const charTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load TTS voices early
+  useEffect(() => { loadVoice(); }, []);
 
   useEffect(() => {
     const t1 = setTimeout(() => setEntered(true), 100);
@@ -65,10 +113,19 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
     return null;
   })();
 
-  // Typewriter
+  const currentAnim: MascotAnim = (() => {
+    if (flow.kind === "main") return MAIN_ANIMS[flow.index] ?? "talk";
+    if (flow.kind === "why")  return WHY_ANIMS[flow.index]  ?? "talk";
+    return "idle";
+  })();
+
+  // Typewriter + TTS when line changes
   useEffect(() => {
-    if (currentLine === null) return;
+    if (currentLine === null) { stopTTS(); return; }
     setDisplayedText("");
+    setMascotAnim(currentAnim);
+    speakLine(currentLine);
+
     let i = 0;
     function tick() {
       if (i <= currentLine!.length) {
@@ -78,8 +135,14 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
       }
     }
     tick();
-    return () => { if (charTimerRef.current) clearTimeout(charTimerRef.current); };
+    return () => {
+      if (charTimerRef.current) clearTimeout(charTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLine]);
+
+  // Cleanup TTS on unmount
+  useEffect(() => () => stopTTS(), []);
 
   function handleTap() {
     if (currentLine && displayedText.length < currentLine.length) {
@@ -93,12 +156,13 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
   function advance() {
     if (flow.kind === "main") {
       const next = flow.index + 1;
-      setFlow(next >= MAIN_LINES.length ? { kind: "choice" } : { kind: "main", index: next });
+      if (next >= MAIN_LINES.length) { stopTTS(); setFlow({ kind: "choice" }); setMascotAnim("idle"); }
+      else setFlow({ kind: "main", index: next });
       return;
     }
     if (flow.kind === "why") {
       const next = flow.index + 1;
-      if (next >= WHY_LINES.length) { onDone(); return; }
+      if (next >= WHY_LINES.length) { stopTTS(); onDone(); return; }
       setFlow({ kind: "why", index: next });
     }
   }
@@ -116,7 +180,6 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
       style={{
         position: "fixed", inset: 0, zIndex: 9998, overflow: "hidden",
         fontFamily: "'League Spartan', sans-serif",
-        // Four pastel bands blending top-to-bottom, all brand colours
         background: `linear-gradient(
           160deg,
           ${LC.pastelSage}   0%,
@@ -127,37 +190,52 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
       }}
       onClick={flow.kind === "choice" ? undefined : handleTap}
     >
-
-      {/* ── Subtle texture dot ── */}
+      {/* Dot texture */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         backgroundImage: "radial-gradient(circle, rgba(14,80,70,0.035) 1px, transparent 1px)",
         backgroundSize: "28px 28px",
       }} />
 
-      {/* ── Mascot — right side, bottom-anchored ── */}
-      <img
-        src={masqotImg}
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          right: "2%",
-          height: "88%",
-          width: "auto",
-          objectFit: "contain",
-          objectPosition: "bottom right",
-          opacity: mascotIn ? 1 : 0,
-          transform: mascotIn ? "translateY(0)" : "translateY(56px)",
-          transition: "opacity 0.8s ease 0.15s, transform 1s cubic-bezier(0.22,1,0.36,1) 0.15s",
-          pointerEvents: "none",
-          userSelect: "none",
-          filter: "drop-shadow(0 20px 48px rgba(14,80,70,0.18)) drop-shadow(0 4px 12px rgba(14,80,70,0.10))",
-        }}
-      />
+      {/* ── Mascot with animation ── */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        right: "2%",
+        height: "88%",
+        display: "flex",
+        alignItems: "flex-end",
+        pointerEvents: "none",
+        userSelect: "none",
+      }}>
+        <img
+          src={masqotImg}
+          alt=""
+          aria-hidden="true"
+          style={{
+            height: "100%",
+            width: "auto",
+            objectFit: "contain",
+            objectPosition: "bottom",
+            filter: "drop-shadow(0 20px 48px rgba(14,80,70,0.18)) drop-shadow(0 4px 12px rgba(14,80,70,0.10))",
+            opacity: mascotIn ? 1 : 0,
+            // Compose animations: entrance + per-action
+            transform: (() => {
+              if (!mascotIn) return "translateY(56px)";
+              if (mascotAnim === "lookup")  return "translateY(-8px) rotate(-2deg)";
+              if (mascotAnim === "standup") return "translateY(-14px) scale(1.04)";
+              if (mascotAnim === "nod")     return "translateY(-6px) rotate(1.5deg)";
+              if (mascotAnim === "talk")    return "translateY(-4px)";
+              return "translateY(0)";
+            })(),
+            transition: mascotIn
+              ? "opacity 0.8s ease 0.15s, transform 0.6s cubic-bezier(0.34,1.56,0.64,1)"
+              : "opacity 0.8s ease 0.15s, transform 1s cubic-bezier(0.22,1,0.36,1) 0.15s",
+          }}
+        />
+      </div>
 
-      {/* ── Soft left vignette so text reads over the mascot ── */}
+      {/* Left vignette */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         background: `linear-gradient(
@@ -199,7 +277,7 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
       <div style={{
         position: "absolute", bottom: 0, left: 0,
         padding: "0 3rem 3.5rem",
-        maxWidth: "580px",
+        maxWidth: "600px",
         opacity: entered ? 1 : 0,
         transform: entered ? "translateY(0)" : "translateY(36px)",
         transition: "opacity 0.7s ease 0.35s, transform 0.8s cubic-bezier(0.22,1,0.36,1) 0.35s",
@@ -222,11 +300,7 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
             <div key={i} style={{
               width: i === currentDot ? "22px" : "6px",
               height: "5px", borderRadius: "3px",
-              background: i < currentDot
-                ? LC.teal
-                : i === currentDot
-                  ? LC.darkGreen
-                  : LC.ruleLine,
+              background: i < currentDot ? LC.teal : i === currentDot ? LC.darkGreen : LC.ruleLine,
               transition: "all 0.3s",
             }} />
           ))}
@@ -236,10 +310,8 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
         {flow.kind === "choice" && (
           <div>
             <div style={{
-              background: LC.offWhite,
-              border: `1px solid ${LC.ruleLine}`,
-              borderRadius: "4px 18px 18px 18px",
-              padding: "1.4rem 1.6rem",
+              background: LC.offWhite, border: `1px solid ${LC.ruleLine}`,
+              borderRadius: "4px 18px 18px 18px", padding: "1.4rem 1.6rem",
               marginBottom: "1.25rem",
               boxShadow: "0 4px 20px rgba(14,80,70,0.08)",
             }}>
@@ -252,65 +324,89 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
               </p>
             </div>
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-              <button
-                type="button"
-                onClick={onDone}
-                style={{
-                  background: LC.darkGreen, color: LC.offWhite, border: "none",
-                  borderRadius: "9999px", padding: "0.9rem 2.2rem",
-                  fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.06em",
-                  cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
-                  boxShadow: "0 4px 20px rgba(14,80,70,0.28)", transition: "all 0.2s",
-                }}
-              >
+              <button type="button" onClick={onDone} style={{
+                background: LC.darkGreen, color: LC.offWhite, border: "none",
+                borderRadius: "9999px", padding: "0.9rem 2.2rem",
+                fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.06em",
+                cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
+                boxShadow: "0 4px 20px rgba(14,80,70,0.28)", transition: "all 0.2s",
+              }}>
                 Begin the Trail →
               </button>
-              <button
-                type="button"
-                onClick={() => setFlow({ kind: "why", index: 0 })}
-                style={{
-                  background: "transparent", color: LC.mutedInk,
-                  border: `1.5px solid ${LC.ruleLine}`,
-                  borderRadius: "9999px", padding: "0.9rem 2.2rem",
-                  fontSize: "0.9rem", fontWeight: 600, letterSpacing: "0.04em",
-                  cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
-                  transition: "all 0.2s",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
+              <button type="button" onClick={() => {
+                setFlow({ kind: "why", index: 0 });
+                setMascotAnim("talk");
+              }} style={{
+                background: "transparent", color: LC.mutedInk,
+                border: `1.5px solid ${LC.ruleLine}`,
+                borderRadius: "9999px", padding: "0.9rem 2.2rem",
+                fontSize: "0.9rem", fontWeight: 600, letterSpacing: "0.04em",
+                cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
+                transition: "all 0.2s",
+              }}>
                 What is this for?
               </button>
             </div>
           </div>
         )}
 
-        {/* ── Normal speech bubble ── */}
+        {/* ── Speech / action line ── */}
         {flow.kind !== "choice" && currentLine !== null && (
           <div>
-            <div style={{
-              background: isAction ? "transparent" : LC.offWhite,
-              border: isAction ? "none" : `1px solid ${LC.ruleLine}`,
-              borderRadius: isAction ? "0" : "4px 18px 18px 18px",
-              padding: isAction ? "0.2rem 0" : "1.4rem 1.6rem",
-              minHeight: isAction ? "auto" : "88px",
-              boxShadow: isAction ? "none" : "0 4px 20px rgba(14,80,70,0.07)",
-            }}>
-              <p style={{
-                fontFamily: "'Fraunces', Georgia, serif",
-                fontStyle: isAction ? "normal" : "italic",
-                fontSize: isAction ? "0.85rem" : "clamp(1.05rem, 2.2vw, 1.3rem)",
-                color: isAction ? LC.mutedInk : LC.ink,
-                lineHeight: 1.7, margin: 0,
+            {isAction ? (
+              /* Action beat — visually distinct pill */
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                background: `${LC.darkGreen}12`,
+                border: `1px solid ${LC.darkGreen}28`,
+                borderRadius: "9999px",
+                padding: "0.5rem 1rem",
+                marginBottom: "0.25rem",
               }}>
-                {displayedText}
-                <span style={{
-                  display: "inline-block", width: "2px", height: "1.1em",
-                  background: LC.darkGreen, marginLeft: "2px", verticalAlign: "middle",
-                  opacity: typing ? 1 : 0,
-                  animation: "mascotCursorBlink 0.7s step-end infinite",
-                }} />
-              </p>
-            </div>
+                <span style={{ fontSize: "0.75rem", color: LC.darkGreen, opacity: 0.6 }}>✦</span>
+                <p style={{
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontStyle: "italic",
+                  fontSize: "0.95rem",
+                  color: LC.darkGreen,
+                  lineHeight: 1.5, margin: 0,
+                  letterSpacing: "0.01em",
+                }}>
+                  {displayedText}
+                  <span style={{
+                    display: "inline-block", width: "2px", height: "0.9em",
+                    background: LC.darkGreen, marginLeft: "2px", verticalAlign: "middle",
+                    opacity: typing ? 1 : 0,
+                    animation: "mascotCursorBlink 0.7s step-end infinite",
+                  }} />
+                </p>
+              </div>
+            ) : (
+              /* Speech bubble */
+              <div style={{
+                background: LC.offWhite, border: `1px solid ${LC.ruleLine}`,
+                borderRadius: "4px 18px 18px 18px",
+                padding: "1.4rem 1.6rem",
+                minHeight: "88px",
+                boxShadow: "0 4px 20px rgba(14,80,70,0.07)",
+              }}>
+                <p style={{
+                  fontFamily: "'Fraunces', Georgia, serif", fontStyle: "italic",
+                  fontSize: "clamp(1.05rem, 2.2vw, 1.3rem)",
+                  color: LC.ink, lineHeight: 1.7, margin: 0,
+                }}>
+                  {displayedText}
+                  <span style={{
+                    display: "inline-block", width: "2px", height: "1.1em",
+                    background: LC.darkGreen, marginLeft: "2px", verticalAlign: "middle",
+                    opacity: typing ? 1 : 0,
+                    animation: "mascotCursorBlink 0.7s step-end infinite",
+                  }} />
+                </p>
+              </div>
+            )}
 
             {!typing && (
               <div style={{ marginTop: "1rem", display: "flex", justifyContent: "flex-end" }}>
@@ -328,17 +424,13 @@ export function MascotIntro({ onDone }: MascotIntroProps) {
         {/* Why branch — last line CTA */}
         {flow.kind === "why" && flow.index === WHY_LINES.length - 1 && !typing && (
           <div style={{ marginTop: "1rem" }}>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onDone(); }}
-              style={{
-                background: LC.darkGreen, color: LC.offWhite, border: "none",
-                borderRadius: "9999px", padding: "0.9rem 2.2rem",
-                fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.07em",
-                cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
-                boxShadow: "0 4px 20px rgba(14,80,70,0.28)",
-              }}
-            >
+            <button type="button" onClick={(e) => { e.stopPropagation(); stopTTS(); onDone(); }} style={{
+              background: LC.darkGreen, color: LC.offWhite, border: "none",
+              borderRadius: "9999px", padding: "0.9rem 2.2rem",
+              fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.07em",
+              cursor: "pointer", fontFamily: "'League Spartan', sans-serif",
+              boxShadow: "0 4px 20px rgba(14,80,70,0.28)",
+            }}>
               Alright. Let's move →
             </button>
           </div>

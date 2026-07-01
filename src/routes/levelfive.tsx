@@ -432,6 +432,95 @@ function ctaStyle(accent: string): React.CSSProperties {
   };
 }
 
+/* ─── Steps ahead animation ──────────────────────────────────────────────── */
+// Figure walking briskly — already a few strides ahead, relaxed posture.
+
+function StepsAhead({ accent }: { accent: string }) {
+  return (
+    <div style={{ marginTop: "1.1rem", userSelect: "none" }}>
+      <style>{`
+        @keyframes sa-stride {
+          0%,100% { transform: translateX(0px);  }
+          50%     { transform: translateX(6px);   }
+        }
+        @keyframes sa-legF {
+          0%,100% { transform: rotate(28deg);  }
+          50%     { transform: rotate(-22deg); }
+        }
+        @keyframes sa-legB {
+          0%,100% { transform: rotate(-22deg); }
+          50%     { transform: rotate(28deg);  }
+        }
+        @keyframes sa-armF {
+          0%,100% { transform: rotate(-22deg); }
+          50%     { transform: rotate(22deg);  }
+        }
+        @keyframes sa-armB {
+          0%,100% { transform: rotate(22deg);  }
+          50%     { transform: rotate(-22deg); }
+        }
+        @keyframes sa-bob {
+          0%,100% { transform: translateY(0px);  }
+          25%,75% { transform: translateY(-2px); }
+        }
+      `}</style>
+
+      <svg width="200" height="72" viewBox="0 0 200 72" fill="none" aria-hidden="true"
+        style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
+
+        {/* Ground line */}
+        <line x1="20" y1="66" x2="180" y2="66" stroke="#c8d8b0" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+        {/* Footstep dots behind figure */}
+        <circle cx="52" cy="67" r="2" fill={accent} opacity="0.3"/>
+        <circle cx="68" cy="67" r="2" fill={accent} opacity="0.2"/>
+        <circle cx="84" cy="67" r="1.5" fill={accent} opacity="0.12"/>
+
+        {/* ── Walking figure — centre ~x130 ── */}
+        <g style={{ animation: "sa-bob 0.55s ease-in-out infinite", transformOrigin: "130px 66px" }}>
+
+          {/* Back arm */}
+          <g style={{ animation: "sa-armB 0.55s ease-in-out infinite", transformOrigin: "130px 36px" }}>
+            <path d="M130 36 L120 50" stroke="#1a3d38" strokeWidth="2.8" strokeLinecap="round"/>
+          </g>
+
+          {/* Back leg */}
+          <g style={{ animation: "sa-legB 0.55s ease-in-out infinite", transformOrigin: "130px 52px" }}>
+            <path d="M130 52 L122 66" stroke="#1a3d38" strokeWidth="3" strokeLinecap="round"/>
+          </g>
+
+          {/* Torso */}
+          <path d="M130 26 C130 26 129 33 130 38 C130.5 42 130 47 130 52"
+            stroke="#0e5046" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+
+          {/* Front leg */}
+          <g style={{ animation: "sa-legF 0.55s ease-in-out infinite", transformOrigin: "130px 52px" }}>
+            <path d="M130 52 L138 66" stroke="#0e5046" strokeWidth="3.2" strokeLinecap="round"/>
+          </g>
+
+          {/* Front arm */}
+          <g style={{ animation: "sa-armF 0.55s ease-in-out infinite", transformOrigin: "130px 36px" }}>
+            <path d="M130 36 L140 49" stroke="#0e5046" strokeWidth="2.8" strokeLinecap="round"/>
+          </g>
+
+          {/* Head */}
+          <circle cx="130" cy="20" r="7" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1"/>
+          {/* Hair */}
+          <path d="M123 18 C123 12 137 12 137 18" fill="#3d2b1a"/>
+          {/* Eye — looking forward */}
+          <ellipse cx="133" cy="20" rx="1.1" ry="1.3" fill="#1a0f00"/>
+          {/* Slight smile */}
+          <path d="M130 23 Q132 24.5 134 23" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        </g>
+
+        {/* Motion lines ahead of figure */}
+        <line x1="148" y1="38" x2="162" y2="38" stroke={accent} strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
+        <line x1="150" y1="44" x2="160" y2="44" stroke={accent} strokeWidth="0.9" strokeLinecap="round" opacity="0.35"/>
+        <line x1="152" y1="50" x2="159" y2="50" stroke={accent} strokeWidth="0.7" strokeLinecap="round" opacity="0.2"/>
+      </svg>
+    </div>
+  );
+}
+
 /* ─── Level mascot intro overlay ─────────────────────────────────────────── */
 
 interface LevelMascotIntroProps {
@@ -527,6 +616,10 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
               animation: "levelCursorBlink 0.7s step-end infinite",
             }} />
           </p>
+          {/* Steps ahead animation — shown on the action beat */}
+          {isAction && displayedText.length > 10 && (
+            <StepsAhead accent={accent} />
+          )}
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
           {isLast ? (

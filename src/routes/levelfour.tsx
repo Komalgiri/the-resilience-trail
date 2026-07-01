@@ -434,6 +434,122 @@ function ctaStyle(accent: string): React.CSSProperties {
   };
 }
 
+/* ─── Crouch at bank animation ───────────────────────────────────────────── */
+
+function CrouchAtBank({ accent }: { accent: string }) {
+  return (
+    <div style={{
+      marginTop: "1.1rem",
+      display: "flex",
+      alignItems: "flex-end",
+      justifyContent: "center",
+      height: "90px",
+      position: "relative",
+      userSelect: "none",
+      overflow: "hidden",
+    }}>
+      <style>{`
+        @keyframes cb-ripple1 {
+          0%   { r: 4;  opacity: 0.55; }
+          100% { r: 22; opacity: 0; }
+        }
+        @keyframes cb-ripple2 {
+          0%   { r: 4;  opacity: 0.4; }
+          100% { r: 18; opacity: 0; }
+        }
+        @keyframes cb-ripple3 {
+          0%   { r: 3;  opacity: 0.3; }
+          100% { r: 14; opacity: 0; }
+        }
+        @keyframes cb-body {
+          0%,100% { transform: translateY(0px); }
+          50%     { transform: translateY(-1.5px); }
+        }
+        @keyframes cb-hand {
+          0%,100% { transform: translateY(0px) rotate(0deg); }
+          40%     { transform: translateY(2px) rotate(4deg); }
+          60%     { transform: translateY(2px) rotate(4deg); }
+        }
+      `}</style>
+
+      <svg
+        width="220" height="90"
+        viewBox="0 0 220 90"
+        fill="none"
+        aria-hidden="true"
+        style={{ overflow: "visible" }}
+      >
+        {/* ── Water surface ── */}
+        {/* Bank / ground */}
+        <path d="M0 72 Q55 68 110 70 Q165 72 220 70 L220 90 L0 90 Z"
+          fill="#b6c8c6" opacity="0.45"/>
+        {/* Water */}
+        <path d="M60 74 Q90 70 110 72 Q130 74 160 71 L165 90 L55 90 Z"
+          fill="#66c3b7" opacity="0.35"/>
+        {/* Water shimmer lines */}
+        <path d="M70 77 Q90 75 105 76" stroke="white" strokeWidth="1" opacity="0.5" strokeLinecap="round"/>
+        <path d="M112 78 Q128 76 145 77" stroke="white" strokeWidth="0.8" opacity="0.4" strokeLinecap="round"/>
+
+        {/* ── Ripples (concentric, staggered) — near where hand hovers ── */}
+        <circle cx="108" cy="72" fill="none" stroke={accent} strokeWidth="1.2">
+          <animate attributeName="r" values="3;22" dur="2s" repeatCount="indefinite" begin="0s"/>
+          <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite" begin="0s"/>
+        </circle>
+        <circle cx="108" cy="72" fill="none" stroke={accent} strokeWidth="1">
+          <animate attributeName="r" values="3;16" dur="2s" repeatCount="indefinite" begin="0.55s"/>
+          <animate attributeName="opacity" values="0.4;0" dur="2s" repeatCount="indefinite" begin="0.55s"/>
+        </circle>
+        <circle cx="108" cy="72" fill="none" stroke={accent} strokeWidth="0.8">
+          <animate attributeName="r" values="2;10" dur="2s" repeatCount="indefinite" begin="1.1s"/>
+          <animate attributeName="opacity" values="0.3;0" dur="2s" repeatCount="indefinite" begin="1.1s"/>
+        </circle>
+
+        {/* ── Figure crouched at bank ── */}
+        <g style={{ animation: "cb-body 3.5s ease-in-out infinite" }}>
+
+          {/* Back leg (further) */}
+          <path d="M96 56 L88 66 L84 72" stroke="#2d5a52" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          {/* Back foot */}
+          <path d="M84 72 L79 73" stroke="#2d5a52" strokeWidth="2.5" strokeLinecap="round"/>
+
+          {/* Torso — leaning forward */}
+          <path d="M100 38 C100 38 97 44 95 50 C93 55 94 58 96 60"
+            stroke="#1a3d38" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+
+          {/* Front leg (closer) */}
+          <path d="M96 60 L100 68 L104 73" stroke="#1a3d38" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          {/* Front foot */}
+          <path d="M104 73 L110 74" stroke="#1a3d38" strokeWidth="3" strokeLinecap="round"/>
+
+          {/* Upper arm */}
+          <path d="M97 44 C101 48 105 54 107 60"
+            stroke="#1a3d38" strokeWidth="3" strokeLinecap="round" fill="none"
+            style={{ animation: "cb-hand 3.5s ease-in-out infinite", transformOrigin: "97px 44px" }}
+          />
+          {/* Forearm / hand hovering over water — NOT touching */}
+          <path d="M107 60 C108 63 109 66 109 70"
+            stroke="#1a3d38" strokeWidth="2.5" strokeLinecap="round" fill="none"
+            style={{ animation: "cb-hand 3.5s ease-in-out infinite", transformOrigin: "107px 60px" }}
+          />
+          {/* Hand fingertips — open, hovering ~2px above water */}
+          <circle cx="108" cy="70" r="2.2" fill="#f2dfc8" stroke="#b8956a" strokeWidth="0.9"/>
+          <circle cx="111" cy="69.5" r="1.8" fill="#f2dfc8" stroke="#b8956a" strokeWidth="0.9"/>
+          <circle cx="105.5" cy="69.5" r="1.8" fill="#f2dfc8" stroke="#b8956a" strokeWidth="0.9"/>
+
+          {/* Head */}
+          <circle cx="101" cy="33" r="7.5" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.2"/>
+          {/* Hair */}
+          <path d="M94 31 C94 24 108 24 108 31" fill="#3d2b1a" stroke="none"/>
+          {/* Eye — looking down at water */}
+          <ellipse cx="104" cy="34" rx="1.2" ry="1.5" fill="#1a0f00" transform="rotate(10 104 34)"/>
+          {/* Nose */}
+          <path d="M105.5 36 Q107 37 106 38" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 /* ─── Level mascot intro overlay ─────────────────────────────────────────── */
 
 interface LevelMascotIntroProps {
@@ -529,6 +645,11 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
               animation: "levelCursorBlink 0.7s step-end infinite",
             }} />
           </p>
+
+          {/* Crouch at bank animation — shown on the action beat line */}
+          {isAction && displayedText.length > 10 && (
+            <CrouchAtBank accent={accent} />
+          )}
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
           {isLast ? (

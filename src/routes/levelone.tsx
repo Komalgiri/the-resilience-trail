@@ -461,6 +461,85 @@ function ctaStyle(accent: string): React.CSSProperties {
   };
 }
 
+/* ─── Apple toss animation ────────────────────────────────────────────────── */
+// Single SVG canvas: everything in one coordinate system.
+// Left palm centre ≈ (34,62). Right palm centre ≈ (166,62). Apple origin (0,0).
+// The apple <g> uses CSS transform to move from left→arc→right→arc→left each cycle.
+
+function AppleToss({ accent }: { accent: string }) {
+  return (
+    <div style={{ marginTop: "1.1rem", userSelect: "none" }}>
+      <style>{`
+        @keyframes at-toss {
+          0%   { transform: translate(34px,62px)  rotate(0deg);   }
+          15%  { transform: translate(60px,34px)  rotate(70deg);  }
+          30%  { transform: translate(90px,14px)  rotate(135deg); }
+          50%  { transform: translate(100px,10px) rotate(180deg); }
+          70%  { transform: translate(112px,14px) rotate(225deg); }
+          85%  { transform: translate(140px,34px) rotate(290deg); }
+          100% { transform: translate(34px,62px)  rotate(360deg); }
+        }
+        @keyframes at-hl {
+          0%,30%,100% { transform: translateY(0px);  }
+          48%,55%     { transform: translateY(5px);  }
+        }
+        @keyframes at-hr {
+          0%,30%,100% { transform: translateY(5px);  }
+          48%,55%     { transform: translateY(0px);  }
+        }
+      `}</style>
+
+      <svg width="200" height="90" viewBox="0 0 200 90" fill="none" aria-hidden="true"
+        style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
+
+        {/* ── Left palm (open, facing up, centred ~x34) ── */}
+        <g style={{ animation: "at-hl 1.5s ease-in-out infinite", transformOrigin: "34px 80px" }}>
+          <path d="M14 58 C14 54 16 52 20 52 L48 52 C52 52 54 54 54 58 L54 74 C54 78 51 80 47 80 L21 80 C17 80 14 78 14 74Z" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1"/>
+          <path d="M19 52 L19 38 C19 35 21 34 23 34 C25 34 27 35 27 38 L27 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M26 52 L26 35 C26 32 28 31 30 31 C32 31 34 32 34 35 L34 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M33 52 L33 37 C33 34 35 33 37 33 C39 33 41 34 41 37 L41 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M40 52 L40 42 C40 40 42 38 44 38 C46 38 47 40 47 42 L47 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M14 60 C11 58 10 55 12 53 C14 51 17 52 18 54 L19 57" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M22 54 Q23 55.5 24 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M29 54 Q30 55.5 31 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M36 54 Q37 55.5 38 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M43 54 Q44 55.5 45 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        </g>
+
+        {/* ── Right palm (mirror, centred ~x166) ── */}
+        <g style={{ animation: "at-hr 1.5s ease-in-out infinite", transformOrigin: "166px 80px" }}>
+          <path d="M146 58 C146 54 148 52 152 52 L180 52 C184 52 186 54 186 58 L186 74 C186 78 183 80 179 80 L153 80 C149 80 146 78 146 74Z" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1"/>
+          <path d="M153 52 L153 42 C153 40 155 38 157 38 C159 38 160 40 160 42 L160 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M159 52 L159 37 C159 34 161 33 163 33 C165 33 167 34 167 37 L167 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M166 52 L166 35 C166 32 168 31 170 31 C172 31 174 32 174 35 L174 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M173 52 L173 38 C173 35 175 34 177 34 C179 34 181 35 181 38 L181 52" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinejoin="round"/>
+          <path d="M186 60 C189 58 190 55 188 53 C186 51 183 52 182 54 L181 57" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M155 54 Q156 55.5 157 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M162 54 Q163 55.5 164 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M169 54 Q170 55.5 171 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+          <path d="M176 54 Q177 55.5 178 54" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        </g>
+
+        {/* ── Apple — origin (0,0), CSS transform moves it in SVG space ── */}
+        <g style={{ animation: "at-toss 1.5s cubic-bezier(0.45,0,0.55,1) infinite" }}>
+          {/* Stem */}
+          <path d="M0 -10 C0 -13 2 -15 5 -15" stroke="#5c3d1a" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+          {/* Leaf */}
+          <path d="M1 -12 C4 -15 8 -14 7 -11 C5 -10 1 -12 1 -12Z" fill={accent}/>
+          {/* Body */}
+          <path d="M0 -8 C-3.5 -8 -7.5 -6 -9 -2 C-11 2 -10 8 -7 11 C-4.5 13.5 -2.5 14.5 0 14.5 C2.5 14.5 4.5 13.5 7 11 C10 8 11 2 9 -2 C7.5 -6 3.5 -8 0 -8Z" fill="#d43b31"/>
+          {/* Top cleft */}
+          <path d="M-2 -7.5 C-0.5 -9.5 0.5 -9.5 2 -7.5" stroke="#b52d24" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+          {/* Highlight */}
+          <path d="M-5.5 -4 C-7 -3 -7 0 -5.5 1 C-4.5 -1 -4.5 -3.5 -5.5 -4Z" fill="white" opacity="0.35"/>
+          {/* Shadow */}
+          <path d="M7 -2 C9.5 1 9.5 7 7 11 C9 8 9.5 3 8 -1Z" fill="#9e2318" opacity="0.45"/>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 /* ─── Level mascot intro overlay ─────────────────────────────────────────── */
 
 interface LevelMascotIntroProps {
@@ -589,6 +668,11 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
               animation: "levelCursorBlink 0.7s step-end infinite",
             }} />
           </p>
+
+          {/* Apple toss animation — shown on the action beat line */}
+          {isAction && displayedText.length > 10 && (
+            <AppleToss accent={accent} />
+          )}
         </div>
 
         {/* Tap hint / Done button */}

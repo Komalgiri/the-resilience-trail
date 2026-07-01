@@ -432,6 +432,102 @@ function ctaStyle(accent: string): React.CSSProperties {
   };
 }
 
+/* ─── Sits by fire animation ─────────────────────────────────────────────── */
+// Figure seated, slightly slumped, next to a low campfire. Flame flickers.
+
+function SitsByFire({ accent }: { accent: string }) {
+  return (
+    <div style={{ marginTop: "1.1rem", userSelect: "none" }}>
+      <style>{`
+        @keyframes sf-flame1 {
+          0%,100% { transform: scaleY(1)    rotate(-3deg); opacity:0.9; }
+          40%,60% { transform: scaleY(1.15) rotate(4deg);  opacity:1;   }
+        }
+        @keyframes sf-flame2 {
+          0%,100% { transform: scaleY(0.85) rotate(5deg);  opacity:0.7; }
+          40%,60% { transform: scaleY(1.1)  rotate(-4deg); opacity:0.85;}
+        }
+        @keyframes sf-ember {
+          0%   { transform: translate(0px,0px);  opacity:0.8; }
+          100% { transform: translate(-4px,-22px); opacity:0;  }
+        }
+        @keyframes sf-ember2 {
+          0%   { transform: translate(0px,0px);  opacity:0.6; }
+          100% { transform: translate(5px,-18px); opacity:0;  }
+        }
+        @keyframes sf-blink {
+          0%,90%,100% { transform: scaleY(1);   }
+          95%         { transform: scaleY(0.1); }
+        }
+        @keyframes sf-nod {
+          0%,100% { transform: rotate(0deg);  }
+          50%     { transform: rotate(6deg);  }
+        }
+      `}</style>
+
+      <svg width="200" height="78" viewBox="0 0 200 78" fill="none" aria-hidden="true"
+        style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
+
+        {/* Ground */}
+        <path d="M50 70 Q100 68 150 70 L150 76 L50 76Z" fill="#b6c8c6" opacity="0.3"/>
+
+        {/* ── Campfire (left of figure) ── */}
+        {/* Log base */}
+        <ellipse cx="72" cy="70" rx="14" ry="4" fill="#5c3d1a" opacity="0.6"/>
+        <path d="M62 70 L66 64" stroke="#5c3d1a" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M82 70 L78 64" stroke="#5c3d1a" strokeWidth="3" strokeLinecap="round"/>
+        {/* Embers glow */}
+        <ellipse cx="72" cy="68" rx="8" ry="3" fill="#ff8f00" opacity="0.25"/>
+        {/* Flame outer */}
+        <path d="M72 64 C68 60 66 54 70 50 C71 55 73 52 74 49 C77 54 78 58 74 64 Z"
+          fill="#ff8f00" opacity="0.85"
+          style={{ animation: "sf-flame1 0.7s ease-in-out infinite", transformOrigin: "72px 64px" }}/>
+        {/* Flame inner */}
+        <path d="M72 62 C70 58 70 55 72 52 C73 55 74 57 73 62 Z"
+          fill="#ffd54f" opacity="0.9"
+          style={{ animation: "sf-flame2 0.7s ease-in-out infinite 0.15s", transformOrigin: "72px 62px" }}/>
+        {/* Embers rising */}
+        <circle cx="70" cy="62" r="1.2" fill="#ff8f00"
+          style={{ animation: "sf-ember 1.4s ease-out infinite", animationDelay: "0s" }}/>
+        <circle cx="74" cy="61" r="1" fill="#ffd54f"
+          style={{ animation: "sf-ember2 1.4s ease-out infinite", animationDelay: "0.6s" }}/>
+        {/* Firelight glow on ground */}
+        <ellipse cx="72" cy="71" rx="18" ry="5" fill="#ff8f00" opacity="0.08"/>
+
+        {/* ── Seated figure (right of fire, slightly slumped) ── */}
+        {/* Legs stretched out */}
+        <path d="M108 56 L128 64 L132 68" stroke="#1a3d38" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M108 56 L124 62 L128 64" stroke="#0e5046" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Feet */}
+        <path d="M132 68 L138 68" stroke="#1a3d38" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Torso — slumped slightly forward */}
+        <path d="M106 36 C105 42 105 48 106 54 C107 57 108 57 108 56"
+          stroke="#0e5046" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+        {/* Arm resting on knee */}
+        <path d="M106 44 L114 56 L120 62" stroke="#0e5046" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Head — nodding slightly */}
+        <g style={{ animation: "sf-nod 4s ease-in-out infinite", transformOrigin: "106px 30px" }}>
+          <circle cx="106" cy="28" r="8" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1"/>
+          <path d="M98 25 C98 19 114 19 114 25" fill="#3d2b1a"/>
+          {/* Tired eyes — half-lidded */}
+          <g style={{ animation: "sf-blink 4s ease-in-out infinite" }}>
+            <ellipse cx="103" cy="28" rx="1.3" ry="1.5" fill="#1a0f00"/>
+            <ellipse cx="109" cy="28" rx="1.3" ry="1.5" fill="#1a0f00"/>
+          </g>
+          {/* Heavy eyelids */}
+          <path d="M101 26.5 Q103 25.5 105 26.5" stroke="#b8956a" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+          <path d="M107 26.5 Q109 25.5 111 26.5" stroke="#b8956a" strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+          {/* Faint firelight on face */}
+          <ellipse cx="101" cy="30" rx="4" ry="5" fill="#ff8f00" opacity="0.07"/>
+        </g>
+
+        {/* Warm light cast from fire onto scene */}
+        <ellipse cx="90" cy="68" rx="22" ry="4" fill={accent} opacity="0.06"/>
+      </svg>
+    </div>
+  );
+}
+
 /* ─── Level mascot intro overlay ─────────────────────────────────────────── */
 
 interface LevelMascotIntroProps {
@@ -527,6 +623,10 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
               animation: "levelCursorBlink 0.7s step-end infinite",
             }} />
           </p>
+          {/* Sits tired by campfire animation */}
+          {isAction && displayedText.length > 10 && (
+            <SitsByFire accent={accent} />
+          )}
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
           {isLast ? (

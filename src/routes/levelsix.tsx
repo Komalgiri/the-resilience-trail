@@ -433,6 +433,95 @@ function ctaStyle(accent: string): React.CSSProperties {
   };
 }
 
+/* ─── Look at canopy animation ───────────────────────────────────────────── */
+// Figure standing, head tilted back, slow breath — chest rises and falls.
+// Dappled light dots drift down like filtered sunlight through leaves.
+
+function LookAtCanopy({ accent }: { accent: string }) {
+  return (
+    <div style={{ marginTop: "1.1rem", userSelect: "none" }}>
+      <style>{`
+        @keyframes lc-breath {
+          0%,100% { transform: scaleY(1);    }
+          45%,55% { transform: scaleY(1.06); }
+        }
+        @keyframes lc-head {
+          0%,100% { transform: rotate(-28deg); }
+          50%     { transform: rotate(-30deg); }
+        }
+        @keyframes lc-leaf1 {
+          0%   { transform: translate(0px,0px)   rotate(0deg);   opacity:0.7; }
+          100% { transform: translate(-8px,55px) rotate(40deg);  opacity:0;   }
+        }
+        @keyframes lc-leaf2 {
+          0%   { transform: translate(0px,0px)   rotate(0deg);   opacity:0.5; }
+          100% { transform: translate(6px,50px)  rotate(-35deg); opacity:0;   }
+        }
+        @keyframes lc-leaf3 {
+          0%   { transform: translate(0px,0px)   rotate(0deg);   opacity:0.4; }
+          100% { transform: translate(-4px,48px) rotate(20deg);  opacity:0;   }
+        }
+        @keyframes lc-breath-ring {
+          0%   { r:4;  opacity:0.45; }
+          100% { r:18; opacity:0;    }
+        }
+      `}</style>
+
+      <svg width="200" height="82" viewBox="0 0 200 82" fill="none" aria-hidden="true"
+        style={{ display: "block", margin: "0 auto", overflow: "visible" }}>
+
+        {/* ── Falling leaf/light particles from canopy ── */}
+        <g>
+          <ellipse cx="78" cy="8" rx="5" ry="3" fill={accent} opacity="0.5" style={{ animation: "lc-leaf1 3.2s ease-in infinite", animationDelay: "0s" }}/>
+          <ellipse cx="120" cy="4" rx="4" ry="2.5" fill={accent} opacity="0.4" style={{ animation: "lc-leaf2 3.2s ease-in infinite", animationDelay: "1.1s" }}/>
+          <ellipse cx="148" cy="10" rx="3.5" ry="2" fill={accent} opacity="0.35" style={{ animation: "lc-leaf3 3.2s ease-in infinite", animationDelay: "2.0s" }}/>
+        </g>
+
+        {/* ── Standing figure, head tilted back ── */}
+        {/* Legs */}
+        <path d="M96 58 L92 78" stroke="#1a3d38" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M104 58 L108 78" stroke="#1a3d38" strokeWidth="3" strokeLinecap="round"/>
+        {/* Feet */}
+        <path d="M92 78 L87 79" stroke="#1a3d38" strokeWidth="2.5" strokeLinecap="round"/>
+        <path d="M108 78 L113 79" stroke="#1a3d38" strokeWidth="2.5" strokeLinecap="round"/>
+
+        {/* Arms out wide, relaxed */}
+        <path d="M100 36 L84 46" stroke="#0e5046" strokeWidth="2.8" strokeLinecap="round"/>
+        <path d="M100 36 L116 46" stroke="#0e5046" strokeWidth="2.8" strokeLinecap="round"/>
+        {/* Hand dangle */}
+        <circle cx="84" cy="48" r="2.2" fill="#f2dfc8" stroke="#b8956a" strokeWidth="0.9"/>
+        <circle cx="116" cy="48" r="2.2" fill="#f2dfc8" stroke="#b8956a" strokeWidth="0.9"/>
+
+        {/* Torso with slow breath */}
+        <path d="M100 28 C100 28 99 36 100 42 C100.5 47 100 52 100 58"
+          stroke="#0e5046" strokeWidth="3.5" strokeLinecap="round" fill="none"
+          style={{ animation: "lc-breath 3.2s ease-in-out infinite", transformOrigin: "100px 43px" }}
+        />
+
+        {/* Breath ring — exhale visible near mouth */}
+        <circle cx="107" cy="22" fill="none" stroke="#b6c8c6" strokeWidth="0.9">
+          <animate attributeName="r" values="3;14" dur="3.2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.4;0" dur="3.2s" repeatCount="indefinite"/>
+        </circle>
+
+        {/* Head — tilted back, looking up */}
+        <g style={{ animation: "lc-head 3.2s ease-in-out infinite", transformOrigin: "100px 28px" }}>
+          <circle cx="100" cy="20" r="8" fill="#f2dfc8" stroke="#b8956a" strokeWidth="1.1"/>
+          <path d="M93 18 C93 12 107 12 107 18" fill="#3d2b1a"/>
+          {/* Eyes looking up (whites visible at bottom of eyes) */}
+          <ellipse cx="97" cy="18" rx="1.3" ry="1.6" fill="#1a0f00" transform="rotate(-10 97 18)"/>
+          <ellipse cx="103" cy="18" rx="1.3" ry="1.6" fill="#1a0f00" transform="rotate(10 103 18)"/>
+          {/* Nose */}
+          <path d="M100 21 Q101.5 22.5 100.5 23.5" stroke="#b8956a" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
+        </g>
+
+        {/* Ground */}
+        <line x1="70" y1="80" x2="130" y2="80" stroke="#c8d8b0" strokeWidth="1.1" strokeLinecap="round" opacity="0.5"/>
+      </svg>
+    </div>
+  );
+}
+
 /* ─── Level mascot intro overlay ─────────────────────────────────────────── */
 
 interface LevelMascotIntroProps {
@@ -528,6 +617,10 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
               animation: "levelCursorBlink 0.7s step-end infinite",
             }} />
           </p>
+          {/* Slow breath + canopy gaze animation */}
+          {isAction && displayedText.length > 10 && (
+            <LookAtCanopy accent={accent} />
+          )}
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
           {isLast ? (

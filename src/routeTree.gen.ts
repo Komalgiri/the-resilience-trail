@@ -9,8 +9,74 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReadingRouteImport } from './routes/reading'
+import { Route as MascotRouteImport } from './routes/mascot'
+import { Route as LeveltwoRouteImport } from './routes/leveltwo'
+import { Route as LevelthreeRouteImport } from './routes/levelthree'
+import { Route as LevelsixRouteImport } from './routes/levelsix'
+import { Route as LevelsevenRouteImport } from './routes/levelseven'
+import { Route as LeveloneRouteImport } from './routes/levelone'
+import { Route as LevelfourRouteImport } from './routes/levelfour'
+import { Route as LevelfiveRouteImport } from './routes/levelfive'
+import { Route as LevelRouteImport } from './routes/level'
+import { Route as IntroRouteImport } from './routes/intro'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ReadingRoute = ReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MascotRoute = MascotRouteImport.update({
+  id: '/mascot',
+  path: '/mascot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeveltwoRoute = LeveltwoRouteImport.update({
+  id: '/leveltwo',
+  path: '/leveltwo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelthreeRoute = LevelthreeRouteImport.update({
+  id: '/levelthree',
+  path: '/levelthree',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelsixRoute = LevelsixRouteImport.update({
+  id: '/levelsix',
+  path: '/levelsix',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelsevenRoute = LevelsevenRouteImport.update({
+  id: '/levelseven',
+  path: '/levelseven',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeveloneRoute = LeveloneRouteImport.update({
+  id: '/levelone',
+  path: '/levelone',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelfourRoute = LevelfourRouteImport.update({
+  id: '/levelfour',
+  path: '/levelfour',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelfiveRoute = LevelfiveRouteImport.update({
+  id: '/levelfive',
+  path: '/levelfive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevelRoute = LevelRouteImport.update({
+  id: '/level',
+  path: '/level',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntroRoute = IntroRouteImport.update({
+  id: '/intro',
+  path: '/intro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +85,186 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/intro': typeof IntroRoute
+  '/level': typeof LevelRoute
+  '/levelfive': typeof LevelfiveRoute
+  '/levelfour': typeof LevelfourRoute
+  '/levelone': typeof LeveloneRoute
+  '/levelseven': typeof LevelsevenRoute
+  '/levelsix': typeof LevelsixRoute
+  '/levelthree': typeof LevelthreeRoute
+  '/leveltwo': typeof LeveltwoRoute
+  '/mascot': typeof MascotRoute
+  '/reading': typeof ReadingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/intro': typeof IntroRoute
+  '/level': typeof LevelRoute
+  '/levelfive': typeof LevelfiveRoute
+  '/levelfour': typeof LevelfourRoute
+  '/levelone': typeof LeveloneRoute
+  '/levelseven': typeof LevelsevenRoute
+  '/levelsix': typeof LevelsixRoute
+  '/levelthree': typeof LevelthreeRoute
+  '/leveltwo': typeof LeveltwoRoute
+  '/mascot': typeof MascotRoute
+  '/reading': typeof ReadingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/intro': typeof IntroRoute
+  '/level': typeof LevelRoute
+  '/levelfive': typeof LevelfiveRoute
+  '/levelfour': typeof LevelfourRoute
+  '/levelone': typeof LeveloneRoute
+  '/levelseven': typeof LevelsevenRoute
+  '/levelsix': typeof LevelsixRoute
+  '/levelthree': typeof LevelthreeRoute
+  '/leveltwo': typeof LeveltwoRoute
+  '/mascot': typeof MascotRoute
+  '/reading': typeof ReadingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/intro'
+    | '/level'
+    | '/levelfive'
+    | '/levelfour'
+    | '/levelone'
+    | '/levelseven'
+    | '/levelsix'
+    | '/levelthree'
+    | '/leveltwo'
+    | '/mascot'
+    | '/reading'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/intro'
+    | '/level'
+    | '/levelfive'
+    | '/levelfour'
+    | '/levelone'
+    | '/levelseven'
+    | '/levelsix'
+    | '/levelthree'
+    | '/leveltwo'
+    | '/mascot'
+    | '/reading'
+  id:
+    | '__root__'
+    | '/'
+    | '/intro'
+    | '/level'
+    | '/levelfive'
+    | '/levelfour'
+    | '/levelone'
+    | '/levelseven'
+    | '/levelsix'
+    | '/levelthree'
+    | '/leveltwo'
+    | '/mascot'
+    | '/reading'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  IntroRoute: typeof IntroRoute
+  LevelRoute: typeof LevelRoute
+  LevelfiveRoute: typeof LevelfiveRoute
+  LevelfourRoute: typeof LevelfourRoute
+  LeveloneRoute: typeof LeveloneRoute
+  LevelsevenRoute: typeof LevelsevenRoute
+  LevelsixRoute: typeof LevelsixRoute
+  LevelthreeRoute: typeof LevelthreeRoute
+  LeveltwoRoute: typeof LeveltwoRoute
+  MascotRoute: typeof MascotRoute
+  ReadingRoute: typeof ReadingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reading': {
+      id: '/reading'
+      path: '/reading'
+      fullPath: '/reading'
+      preLoaderRoute: typeof ReadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mascot': {
+      id: '/mascot'
+      path: '/mascot'
+      fullPath: '/mascot'
+      preLoaderRoute: typeof MascotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leveltwo': {
+      id: '/leveltwo'
+      path: '/leveltwo'
+      fullPath: '/leveltwo'
+      preLoaderRoute: typeof LeveltwoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelthree': {
+      id: '/levelthree'
+      path: '/levelthree'
+      fullPath: '/levelthree'
+      preLoaderRoute: typeof LevelthreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelsix': {
+      id: '/levelsix'
+      path: '/levelsix'
+      fullPath: '/levelsix'
+      preLoaderRoute: typeof LevelsixRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelseven': {
+      id: '/levelseven'
+      path: '/levelseven'
+      fullPath: '/levelseven'
+      preLoaderRoute: typeof LevelsevenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelone': {
+      id: '/levelone'
+      path: '/levelone'
+      fullPath: '/levelone'
+      preLoaderRoute: typeof LeveloneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelfour': {
+      id: '/levelfour'
+      path: '/levelfour'
+      fullPath: '/levelfour'
+      preLoaderRoute: typeof LevelfourRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levelfive': {
+      id: '/levelfive'
+      path: '/levelfive'
+      fullPath: '/levelfive'
+      preLoaderRoute: typeof LevelfiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/level': {
+      id: '/level'
+      path: '/level'
+      fullPath: '/level'
+      preLoaderRoute: typeof LevelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intro': {
+      id: '/intro'
+      path: '/intro'
+      fullPath: '/intro'
+      preLoaderRoute: typeof IntroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,7 +277,28 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  IntroRoute: IntroRoute,
+  LevelRoute: LevelRoute,
+  LevelfiveRoute: LevelfiveRoute,
+  LevelfourRoute: LevelfourRoute,
+  LeveloneRoute: LeveloneRoute,
+  LevelsevenRoute: LevelsevenRoute,
+  LevelsixRoute: LevelsixRoute,
+  LevelthreeRoute: LevelthreeRoute,
+  LeveltwoRoute: LeveltwoRoute,
+  MascotRoute: MascotRoute,
+  ReadingRoute: ReadingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

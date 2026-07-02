@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import masqotImg from "../masqot.png";
 import { LC } from "../lib/trail-data";
+import { loadVoice, speakLine, stopTTS } from "../lib/tts";
 
 export const Route = createFileRoute("/levelseven")({
   head: () => ({
@@ -57,6 +58,18 @@ function LevelSevenPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [activeQ, phase]);
+
+  useEffect(() => { loadVoice(); }, []);
+
+  useEffect(() => {
+    if (phase !== "questions") {
+      stopTTS();
+      return;
+    }
+    speakLine(QUESTIONS[activeQ]);
+  }, [phase, activeQ]);
+
+  useEffect(() => () => stopTTS(), []);
 
   function selectStone(qi: number, v: number) {
     const next = [...stones];
@@ -544,6 +557,9 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
   const [mascotIn, setMascotIn] = useState(false);
   const charTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => { loadVoice(); }, []);
+  useEffect(() => () => stopTTS(), []);
+
   useEffect(() => {
     const t1 = setTimeout(() => setEntered(true), 80);
     const t2 = setTimeout(() => setMascotIn(true), 300);
@@ -553,6 +569,7 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
   useEffect(() => {
     const line = lines[lineIndex];
     setDisplayedText("");
+    speakLine(line);
     let i = 0;
     function tick() {
       if (i <= line.length) {
@@ -569,7 +586,7 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
   const isLast = lineIndex >= lines.length - 1;
 
   function advance() {
-    if (isLast) { onDone(); return; }
+    if (isLast) { stopTTS(); onDone(); return; }
     setLineIndex((i) => i + 1);
   }
 
@@ -630,7 +647,7 @@ function LevelMascotIntro({ lines, accent, tint, onDone }: LevelMascotIntroProps
         </div>
         <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "flex-end" }}>
           {isLast ? (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onDone(); }} style={{
+            <button type="button" onClick={(e) => { e.stopPropagation(); stopTTS(); onDone(); }} style={{
               background: accent, color: "white", border: "none",
               borderRadius: "9999px", padding: "0.65rem 1.5rem",
               fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.07em",
